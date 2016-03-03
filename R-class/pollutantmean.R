@@ -1,7 +1,8 @@
 #complete returns the number of observations within the file ids 
 #contained in the specified directory that are complete (not NA)
-#trying to it a little more interesting by keeping everything as
-#vectorized as possible
+#trying to make it a little more interesting by keeping the use 
+#of control logic, if, loops, etc to a bare minimum as my understanding
+#is that those constructs slow things down in R
 complete <- function(directory, id = 1:332){
     padded_ids <- paste(sprintf("%03d", id), ".csv", sep = "")
     padded_ids <- paste("/", padded_ids, sep = "")
