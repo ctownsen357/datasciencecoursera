@@ -1,3 +1,4 @@
+#calculates the correlation between sulfate and nitrate greater than the threshold for the specified directory of observations
 corr <- function(directory, threshold = 0) {
     p <- paste(directory, "/*.csv", sep = "")
 
@@ -7,7 +8,7 @@ corr <- function(directory, threshold = 0) {
     
     completedf <- df[complete.cases(df),]
     counts_by_id <- count(completedf, "ID")
-    target_ids <- subset(counts_by_id, counts_by_id$freq >= threshold)$ID
+    target_ids <- subset(counts_by_id, counts_by_id$freq > threshold)$ID
 
     crr = numeric()
     for (id in target_ids){
