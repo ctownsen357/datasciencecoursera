@@ -3,19 +3,23 @@ corr <- function(directory, threshold = 0) {
 
     tmp <- list.files(directory)
     tmp <- paste(paste(directory, "/", sep = ""), tmp, sep = "")
-    #df <- lapply(tmp, read.csv)
     df <- do.call(rbind, lapply(tmp, read.csv))
-    df[1:3,]
-    #files
+    
     completedf <- df[complete.cases(df),]
     counts_by_id <- count(completedf, "ID")
     target_ids <- subset(counts_by_id, counts_by_id$freq >= threshold)$ID
-    data_to_process <- subset(completedf, completedf$ID %in% target_ids)
-    cor(data_to_process$sulfate, data_to_process$nitrate)
+
+    crr = numeric()
+    for (id in target_ids){
+        data_to_process <- subset(completedf, completedf$ID == id)
+        crr <- c(crr, cor(data_to_process$sulfate, data_to_process$nitrate))
+    }
+    crr
     #colSum(!is.na(df)) # gave a count of non NA for each column
     #sum(!is.na(df)) # gave count of non NA for the entire df
 }
 
+#used this when tinkering to figure things out so I didn't have to keep waiting for all the data to load
 loaddf <- function(directory) {
     p <- paste(directory, "/*.csv", sep = "")
     
@@ -28,14 +32,38 @@ loaddf <- function(directory) {
     #files
 }
 
-dcorr <- function(df, threshold = 0) {
-    df[1:3,]
-    #files
-    #df[cumsum(!is.na(df[complete.cases(df),]))[1:1],]
+
+#found these examples when I got stuck so I could figure out why my version was not working
+#I was applying cor to the entire data set rather than for each ID
+dcorr <- function(directory, threshold = 0) {
+    ## 'directory' is a character vector of length 1 indicating the location of
+    ## the CSV files
+    
+    ## 'threshold' is a numeric vector of length 1 indicating the number of
+    ## completely observed observations (on all variables) required to compute
+    ## the correlation between nitrate and sulfate; the default is 0
+    
+    ## Return a numeric vector of correlations
+    df = dcomplete(directory)
+    ids = df[df["nobs"] > threshold, ]$id
+    corrr = numeric()
+    for (i in ids) {
+        
+        newRead = read.csv(paste(directory, "/", formatC(i, width = 3, flag = "0"), 
+                                 ".csv", sep = ""))
+        dff = newRead[complete.cases(newRead), ]
+        corrr = c(corrr, cor(dff$sulfate, dff$nitrate))
+    }
+    return(corrr)
+}
+dcomplete <- function(directory, id = 1:332) {
+    f <- function(i) {
+        data = read.csv(paste(directory, "/", formatC(i, width = 3, flag = "0"), 
+                              ".csv", sep = ""))
+        sum(complete.cases(data))
+    }
+    nobs = sapply(id, f)
+    return(data.frame(id, nobs))
 }
 
-dss <- function(df, threshold) {
- ss <- df[cumsum(!is.na(df))[1:5],]
- ss
-}
-#need to get the IDs of N cases where the threshold has been met
+
