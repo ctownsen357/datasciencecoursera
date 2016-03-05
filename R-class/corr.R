@@ -1,3 +1,5 @@
+library("plyr")
+
 #calculates the correlation between sulfate and nitrate greater than the threshold for the specified directory of observations
 corr <- function(directory, threshold = 0) {
     p <- paste(directory, "/*.csv", sep = "")
@@ -28,9 +30,6 @@ loaddf <- function(directory) {
     tmp <- paste(paste(directory, "/", sep = ""), tmp, sep = "")
     #df <- lapply(tmp, read.csv)
     df <- do.call(rbind, lapply(tmp, read.csv))
-    
-    
-    #files
 }
 
 
